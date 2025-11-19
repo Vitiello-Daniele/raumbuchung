@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.iu.raumbuchung</groupId>
+  <artifactId>raumbuchung</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <jakartaee.version>10.0.0</jakartaee.version>
+  </properties>
+
+  <dependencies>
+    <!-- Jakarta EE API (wird vom Server bereitgestellt, daher provided) -->
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>${jakartaee.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    
+    <!-- bcrypt für passwort-hashing -->
+	<dependency>
+	    <groupId>org.mindrot</groupId>
+	    <artifactId>jbcrypt</artifactId>
+	    <version>0.4</version>
+	</dependency>
+
+    <!-- PostgreSQL JDBC -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.3</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Flyway für Migrationen, wird später konfigurriert -->
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>10.0.0</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

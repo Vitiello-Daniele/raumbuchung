@@ -1,0 +1,18 @@
+# maven build
+target/
+
+# logs
+*.log
+
+# eclipse
+.settings/
+.project
+.classpath
+
+# idea (falls du mal wechselst)
+.idea/
+*.iml
+
+# betriebssystem-kram
+.DS_Store
+Thumbs.db
