@@ -7,9 +7,23 @@
 <h:body>
     <h1>raumbuchung – startseite</h1>
 
-    <a href="register.xhtml">test-link zur registrierung (normal)</a><br/>
+    <!-- bereich wenn eingeloggt -->
+    <h:panelGroup rendered="#{loginBean.loggedIn}">
+	    <p>eingeloggt als #{loginBean.currentUser.username}</p>
+	    <h:form>
+	        <h:commandButton value="logout" action="#{loginBean.logout}"/>
+	    </h:form>
+	
+	    <h:panelGroup rendered="#{loginBean.admin}">
+		    <h:link value="admin-bereich (user freischalten)" outcome="admin_users"/><br/>
+		</h:panelGroup>
+	</h:panelGroup>
+	    
 
-    <!-- jsf link -->
-    <h:link value="jsf-link zur registrierung" outcome="register"/>
+    <!-- bereich wenn NICHT eingeloggt -->
+    <h:panelGroup rendered="#{!loginBean.loggedIn}">
+        <h:link value="login" outcome="login"/><br/>
+        <h:link value="registrieren" outcome="register"/>
+    </h:panelGroup>
 </h:body>
 </html>

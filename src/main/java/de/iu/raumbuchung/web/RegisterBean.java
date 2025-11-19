@@ -7,6 +7,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+import de.iu.raumbuchung.service.DuplicateUserException;
+
+
 @Named
 @RequestScoped
 public class RegisterBean {
@@ -19,14 +22,19 @@ public class RegisterBean {
     private UserService userService;
 
     public String register() {
-        // user über service anlegen
-        userService.registerNewUser(username, email, password);
+        try {
+            userService.registerNewUser(username, email, password);
 
-        FacesContext.getCurrentInstance()
-                .addMessage(null, new FacesMessage("registrierung erfolgreich"));
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage("registrierung erfolgreich"));
 
-        // zurück auf startseite
-        return "index?faces-redirect=true";
+            return "index?faces-redirect=true";
+        } catch (DuplicateUserException e) {
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "username oder email ist schon vergeben", null));
+            return null; // auf der seite bleiben
+        }
     }
 
     // getter und setter

@@ -19,19 +19,23 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255) // gehashes passwort
     private String passwordHash;
 
-    @Column(nullable = false, length = 20) // z.b. PENDING, ACTIVE
+    @Column(nullable = false, length = 20) // PENDING, ACTIVE, BLOCKED
     private String status;
+
+    @Column(nullable = false, length = 20) // USER oder ADMIN
+    private String role;
 
     // leerer konstruktor für jpa
     public User() {
     }
 
     // einfacher konstruktor
-    public User(String username, String email, String passwordHash, String status) {
+    public User(String username, String email, String passwordHash, String status, String role) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
         this.status = status;
+        this.role = role;
     }
 
     // getter und setter
@@ -69,5 +73,13 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
