@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>räume verwalten</title>
+</h:head>
+<h:body>
+    <h1>räume verwalten</h1>
+
+    <!-- zugriff nur für admin -->
+    <h:panelGroup rendered="#{!loginBean.admin}">
+        <p>kein zugriff (nur admin).</p>
+        <h:link value="zur startseite" outcome="index"/>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{loginBean.admin}">
+        <h2>neuen raum anlegen</h2>
+
+        <h:form>
+            <h:panelGrid columns="2">
+                <h:outputLabel for="name" value="name:"/>
+                <h:inputText id="name" value="#{roomAdminBean.newRoom.name}" required="true"/>
+
+                <h:outputLabel for="location" value="standort:"/>
+                <h:inputText id="location" value="#{roomAdminBean.newRoom.location}" required="true"/>
+
+                <h:outputLabel for="capacity" value="kapazität:"/>
+                <h:inputText id="capacity" value="#{roomAdminBean.newRoom.capacity}" required="true"/>
+
+                <h:outputLabel for="equipment" value="ausstattung:"/>
+                <h:inputText id="equipment" value="#{roomAdminBean.newRoom.equipment}"/>
+            </h:panelGrid>
+
+            <h:commandButton value="speichern" action="#{roomAdminBean.save}"/>
+        </h:form>
+
+        <h2>alle räume</h2>
+        <h:form>
+            <h:dataTable value="#{roomAdminBean.rooms}" var="r" border="1">
+                <h:column>
+                    <f:facet name="header">name</f:facet>
+                    #{r.name}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">standort</f:facet>
+                    #{r.location}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">kapazität</f:facet>
+                    #{r.capacity}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">ausstattung</f:facet>
+                    #{r.equipment}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">aktion</f:facet>
+                    <h:commandButton value="löschen"
+                                     action="#{roomAdminBean.delete(r.id)}"/>
+                </h:column>
+            </h:dataTable>
+        </h:form>
+
+        <h:link value="zur startseite" outcome="index"/>
+    </h:panelGroup>
+</h:body>
+</html>

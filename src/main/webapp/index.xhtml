@@ -10,13 +10,18 @@
     <!-- bereich wenn eingeloggt -->
     <h:panelGroup rendered="#{loginBean.loggedIn}">
 	    <p>eingeloggt als #{loginBean.currentUser.username}</p>
+	    
+    	<h:link value="räume buchen" outcome="bookings"/><br/>
+
+	    <h:panelGroup rendered="#{loginBean.admin}">
+		    <h:link value="admin: user freischalten" outcome="admin_users"/><br/>
+		    <h:link value="admin: räume verwalten" outcome="rooms"/>
+		</h:panelGroup>
+		
 	    <h:form>
 	        <h:commandButton value="logout" action="#{loginBean.logout}"/>
 	    </h:form>
 	
-	    <h:panelGroup rendered="#{loginBean.admin}">
-		    <h:link value="admin-bereich (user freischalten)" outcome="admin_users"/><br/>
-		</h:panelGroup>
 	</h:panelGroup>
 	    
 

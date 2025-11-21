@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>raum buchen</title>
+</h:head>
+<h:body>
+    <h1>raum buchen</h1>
+
+    <h:messages globalOnly="true"/>
+
+    <!-- nur für eingeloggte user -->
+    <h:panelGroup rendered="#{!loginBean.loggedIn}">
+        <p>bitte zuerst einloggen.</p>
+        <h:link value="zur startseite" outcome="index"/>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{loginBean.loggedIn}">
+        <h2>neue buchung</h2>
+
+        <h:form>
+            <h:panelGrid columns="2">
+
+                <h:outputLabel for="room" value="raum:"/>
+                <h:selectOneMenu id="room" value="#{bookingBean.roomId}" required="true">
+                    <f:selectItems value="#{bookingBean.rooms}"
+                                   var="r"
+                                   itemValue="#{r.id}"
+                                   itemLabel="#{r.name} (#{r.location})"/>
+                </h:selectOneMenu>
+
+                <h:outputLabel for="date" value="datum (yyyy-mm-dd):"/>
+                <h:inputText id="date" value="#{bookingBean.date}" required="true">
+                    <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                </h:inputText>
+
+                <h:outputLabel for="start" value="start (hh:mm):"/>
+                <h:inputText id="start" value="#{bookingBean.startTime}" required="true">
+                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                </h:inputText>
+
+                <h:outputLabel for="end" value="ende (hh:mm):"/>
+                <h:inputText id="end" value="#{bookingBean.endTime}" required="true">
+                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                </h:inputText>
+
+            </h:panelGrid>
+
+            <h:commandButton value="buchen" action="#{bookingBean.book}"/>
+        </h:form>
+
+        <h2>meine buchungen</h2>
+        <h:dataTable value="#{bookingBean.myBookings}" var="b" border="1">
+            <h:column>
+                <f:facet name="header">datum</f:facet>
+                #{b.date}
+            </h:column>
+            <h:column>
+                <f:facet name="header">start</f:facet>
+                #{b.startTime}
+            </h:column>
+            <h:column>
+                <f:facet name="header">ende</f:facet>
+                #{b.endTime}
+            </h:column>
+            <h:column>
+                <f:facet name="header">raum</f:facet>
+                #{b.room.name}
+            </h:column>
+        </h:dataTable>
+
+        <h:link value="zur startseite" outcome="index"/>
+    </h:panelGroup>
+</h:body>
+</html>
