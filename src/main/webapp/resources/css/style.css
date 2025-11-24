@@ -1,0 +1,715 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #2e2e2e; /* dunkles grau überall */
+}
+
+/* login + app teilen sich textfarbe und höhe */
+body.auth-page,
+body.app-page {
+    color: #f5f5f5;
+    min-height: 100vh;
+}
+
+/* ================= login / registrierung ================= */
+
+/* login-card: feste y-position, damit nix springt */
+.auth-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    margin: 80px auto 40px auto; /* fixer start nach oben */
+}
+
+/* login-card als eigene karte */
+.auth-card {
+    background-color: #f4f4f4;
+    color: #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* hauptbereich nur als container */
+.app-main {
+    margin-top: 16px;
+}
+
+
+/* layout für startseiten-dashboard */
+.dashboard-layout {
+    display: flex;
+    flex-direction: column;  /* untereinander statt nebeneinander */
+    gap: 16px;
+}
+
+/* einzelne boxen im dashboard */
+.dash-section {
+    width: 100%; /* volle breite innerhalb der app-main */
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    padding: 16px;
+}
+
+/* header in der rechten box (titel + counter) */
+.dash-section-header {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 8px 12px;
+    margin: -16px -16px 16px -16px; 
+    border-bottom: 1px solid #ddd;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Überschrift im Header wie die anderen Titel */
+.dash-section-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.badge-counter {
+    background-color: #1874CD;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+/* liste im überblick */
+.dash-list {
+    padding-left: 18px;
+    margin: 8px 0 8px 0;
+    font-size: 14px;
+}
+
+.dash-list li {
+    margin-bottom: 4px;
+}
+
+/* dezenter hinweistext */
+.muted-text {
+    font-size: 12px;
+    color: #666;
+}
+
+/* tabelle für buchungsübersicht */
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.booking-table th,
+.booking-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.booking-table th {
+    font-weight: bold;
+}
+
+/* alte Tabs (falls noch irgendwo benutzt) */
+.booking-tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    margin-bottom: 8px;
+}
+.booking-tab {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.booking-tab-open.active {
+    background-color: #2e7d32;   /* grün für offene */
+    color: #fff;
+    border-color: #2e7d32;
+}
+
+.booking-tab-past.active {
+    background-color: #8b1a1a;   /* rot für abgelaufene */
+    color: #fff;
+    border-color: #8b1a1a;
+}
+
+/* Header-Zeile "Meine Buchungen" mit Switch rechts – grauer Balken über ganze Karte */
+.sub-section-header-row {
+    margin-top: 28px;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+    margin-left: -16px;
+    margin-right: -16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sub-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Pill-Switch für Offen / Abgelaufen */
+.booking-toggle {
+    display: flex;
+    background-color: #e0e0e0;
+    border-radius: 18px;
+    padding: 2px;
+    gap: 2px;
+}
+
+.booking-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* aktive Zustände */
+.booking-toggle-btn.active-open {
+    background-color: #2e7d32;   /* grün für offene */
+    color: #fff;
+}
+
+.booking-toggle-btn.active-past {
+    background-color: #8b1a1a;   /* rot für abgelaufene */
+    color: #fff;
+}
+
+
+/* header oben */
+.auth-header {
+    background-color: #1874CD;
+    color: #fff;
+    padding: 16px 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* tabs login / register */
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #f4f4f4;
+    border: none;
+    outline: none;
+}
+
+.auth-tab.active {
+    background-color: #ffffff;
+    border-bottom: 3px solid #1874CD;
+    font-weight: bold;
+    color: #1874CD;
+}
+
+/* inhalt im card-body */
+.auth-body {
+    padding: 20px;
+}
+
+/* formular-zeilen */
+.form-row {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #555;
+}
+
+.form-input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    width: 100%;           
+    box-sizing: border-box;
+}
+
+/* ================= buttons (alle gemeinsam) ================= */
+
+.form-button,
+.app-nav-button,
+.app-logout-button {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* blaue buttons: login/registrieren + nav */
+.form-button,
+.app-nav-button {
+    background-color: #0d47a1;
+    color: #fff;
+    font-weight: bold;
+}
+
+.form-button:hover,
+.app-nav-button:hover {
+    background-color: #0E58b2;
+}
+
+/* roter logout */
+.app-logout-button {
+    background-color: #8b1a1a;
+    color: #fff;
+}
+
+/* nav-buttons als links */
+.app-nav-button {
+    text-decoration: none;
+    display: inline-block;
+    padding: 6px 10px;
+}
+
+/* ================= meldungs-boxen ================= */
+
+/* gemeinsamer rahmen für error + success */
+.messages,
+.success-box {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* rote fehler-box */
+.messages {
+    background-color: #8b1a1a;
+    color: #fff;
+    list-style: disc inside;
+    display: none; /* js blendet ein */
+}
+
+.messages li {
+    margin-left: 0;
+    margin-bottom: 2px;
+}
+
+/* grüne erfolgs-box */
+.success-box {
+    background-color: #2e7d32;
+    color: #fff;
+}
+
+/* kleiner infotext */
+.small-text {
+    font-size: 12px;
+    color: #777;
+    margin-top: 8px;
+}
+
+
+/* ================= eingeloggt: app-layout ================= */
+
+.app-wrapper {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 10px;
+}
+
+/* topbar oben */
+.app-topbar {
+    background-color: #1874CD;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.app-title {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.app-topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.app-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.app-user-box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 6px 10px;
+    margin-left: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background-color: rgba(0, 0, 0, 0.15);
+    min-width: 160px;
+    box-sizing: border-box;
+}
+
+.app-hello {
+    font-size: 13px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.app-logout-button {
+    width: 100%;      
+    padding: 4px 0;
+    border-radius: 4px;
+    border: none;
+    background-color: #8b1a1a;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.app-logout-button:hover {
+    background-color: #5d1010;
+}
+/* badge für pending-user */
+.badge-pending {
+    margin-left: 12px;
+    background-color: #ffb300;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.warning-box {
+    background-color: #ffb300;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.booking-table th,
+.booking-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+/* tabelle für admin-user-übersicht */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.table-button {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    background-color: #2e7d32; 
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.table-button:hover {
+    background-color: #1b5e20;
+}
+
+.form-grid {
+    width: 100%;
+}
+
+.form-grid-label {
+    padding: 4px 8px;
+    text-align: right;
+    font-size: 13px;
+    color: #555;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.form-grid-input {
+    padding: 4px 8px;
+}
+
+.form-grid-input .form-input,
+.form-grid-input input,
+.form-grid-input select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.field-error {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8b1a1a;
+}
+
+.form-legend {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #888;
+}
+/* horizontale formular-reihen (z.b. bei räume verwalten) */
+.form-row-inline {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* label mit fixer breite links */
+.form-row-inline .form-label {
+    width: 140px;
+    text-align: right;
+    margin-bottom: 0;
+    line-height: 28px;
+    flex-shrink: 0;
+}
+
+/* container für input + fehlermeldung */
+.form-field {
+    flex: 1;
+    min-width: 0;
+}
+
+/* inputs in form-field über gesamte breite */
+.form-field .form-input,
+.form-field input,
+.form-field select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* fehlermeldung unter dem feld */
+.field-error {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #8b1a1a;
+}
+
+.app-home-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    background-color: #0d47a1;
+    color: #fff;
+}
+
+.app-home-button:hover {
+    background-color: #0E58b2;
+}
+
+.app-home-icon {
+    font-size: 16px;
+}
+
+.app-nav-separator {
+    padding: 0 6px;
+    opacity: 0.7;
+}
+
+.timeline-wrapper {
+    margin-top: 4px;
+}
+
+
+.timeline-bar {
+    position: relative;
+    height: 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background-color: #d4edda;
+    overflow: hidden;
+}
+
+.timeline-tick {
+    position: absolute;
+    top: 50%;
+    width: 1px;
+    height: 14px;
+    background-color: rgba(0, 0, 0, 0.25);
+    transform: translate(-0.5px, -50%);
+}
+
+/* Basis-Stil für alle Blöcke (rot & blau) */
+.timeline-slot,
+.timeline-selection {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 10px;
+}
+
+/* bestehende Buchungen (rot) */
+.timeline-slot {
+    background-color: rgba(255, 0, 0, 0.3);	
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    box-sizing: border-box; 
+}
+
+/* aktuelle Auswahl (blau) */
+.timeline-selection {
+    background-color: rgba(0, 123, 255, 0.3);
+    border: 2px solid rgba(0, 123, 255, 0.5);
+    box-sizing: border-box;   
+}
+
+.timeline-labels {
+    position: relative;
+    height: 16px;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: #555;
+}
+
+.timeline-label {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+/* Box um die Verfügbarkeitsanzeige */
+.timeline-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    padding: 8px 12px 12px;
+    margin: 8px 0 16px;
+}
+
+.timeline-card-header {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px; 
+    font-weight: 600;
+    padding: 6px 10px;
+    margin: -8px -12px 8px -12px; 
+    border-bottom: 1px solid #ddd;
+}
+
+.timeline-card-body {
+    /* falls du später noch Text dazu packst */
+}
+
+.timeline-labels span {
+    font-size: 0.7rem;
+}
+
+/* optional: nur gerade Stunden hervorheben, ungerade etwas blasser */
+.timeline-labels span:nth-child(2n) {
+    font-weight: 600;
+}
+.timeline-labels span:nth-child(2n+1) {
+    opacity: 0.5;
+}
+
+/* Hauptüberschriften (erste Zeile in jeder Box) – grauer Balken */
+.dash-section > h2 {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 18px;  
+    font-weight: 600;
+    padding: 8px 12px;
+    margin: -16px -16px 16px -16px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Unterüberschriften wie "Alle Räume" / "Alle Standorte" – gleicher Balken, etwas Abstand nach oben */
+.sub-section-header {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 8px 12px;
+    margin: 28px -16px 16px -16px; 
+    border-bottom: 1px solid #ddd;
+    display: block;
+}
+
+/* einfache mobile-anpassung */
+@media (max-width: 600px) {
+    .app-wrapper {
+        margin: 20px auto;
+        padding: 0 8px;
+    }
+
+    .app-topbar {
+        flex-direction: column;      /* titel + nav untereinander */
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .app-topbar-right {
+        flex-wrap: wrap;             /* buttons dürfen umbrechen */
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .app-nav-button,
+    .app-logout-button {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+	.app-user-box {
+        align-items: stretch;
+        margin-left: 0;
+        margin-top: 6px;
+    }
+}

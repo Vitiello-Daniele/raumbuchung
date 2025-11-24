@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "bookings") // tabelle bookings
+@Table(name = "bookings")
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false)
@@ -20,13 +20,13 @@ public class Booking {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false) // buchungsdatum
+    @Column(nullable = false)
     private LocalDate date;
 
-    @Column(name = "start_time", nullable = false) // startzeit
+    @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
-    @Column(name = "end_time", nullable = false) // endzeit
+    @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
     public Booking() {

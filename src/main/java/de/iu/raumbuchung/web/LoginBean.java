@@ -8,7 +8,8 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.mindrot.jbcrypt.BCrypt;
-
+import java.io.IOException;
+import jakarta.faces.context.ExternalContext;
 import java.io.Serializable;
 
 @Named
@@ -23,29 +24,42 @@ public class LoginBean implements Serializable {
     private UserService userService;
 
     public String login() {
+        FacesContext ctx = FacesContext.getCurrentInstance();
+
         User user = userService.findByUsername(username);
 
         if (user == null) {
-            addError("username existiert nicht");
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Username existiert nicht", null));
             return null;
         }
 
         if (!BCrypt.checkpw(password, user.getPasswordHash())) {
-            addError("passwort ist falsch");
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Passwort ist falsch", null));
             return null;
         }
 
-        // status prüfen: nur ACTIVE darf rein (admin ist eh ACTIVE)
-        // hier nicht nach admin filtern, da später installationsseite
-        if (user.getStatus() == null || !"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-            addError("konto ist noch nicht freigeschaltet");
-            return null;
+        currentUser = user;
+        password = null;
+
+        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    "Dein Konto ist noch nicht freigeschaltet.", null));
         }
 
-        this.currentUser = user;
-        this.password = null;
-
+        // immer auf index, dort wird über loggedIn unterschieden
         return "index?faces-redirect=true";
+    }
+
+    public boolean isActiveUser() {
+        return currentUser != null
+                && "ACTIVE".equalsIgnoreCase(currentUser.getStatus());
+    }
+
+    public boolean isPendingUser() {
+        return currentUser != null
+                && !"ACTIVE".equalsIgnoreCase(currentUser.getStatus());
     }
 
     private void addError(String msg) {
@@ -76,5 +90,21 @@ public class LoginBean implements Serializable {
 
     public boolean isAdmin() {
         return currentUser != null && "ADMIN".equalsIgnoreCase(currentUser.getRole());
+    }
+
+    public void redirectIfNotAllowed() {
+        // wenn nicht eingeloggt oder nicht aktiv -> auf index zurück
+        if (!isLoggedIn() || !isActiveUser()) {
+            FacesContext ctx = FacesContext.getCurrentInstance();
+            ExternalContext ec = ctx.getExternalContext();
+
+            try {
+                String contextPath = ec.getRequestContextPath();
+                ec.redirect(contextPath + "/index.xhtml");
+                ctx.responseComplete();
+            } catch (IOException e) {
+                // ggf. loggen
+            }
+        }
     }
 }

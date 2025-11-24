@@ -3,36 +3,34 @@ package de.iu.raumbuchung.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "rooms") // tabelle rooms
+@Table(name = "rooms")
 public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100) // raumname
-    private String name;
+    @Column(nullable = false)
+    private String name;          // zb. seminarraum a
 
-    @Column(nullable = false, length = 100) // standort
-    private String location;
+    @Column(nullable = false)
+    private String location;      // standort (aus dropdown)
 
-    @Column(nullable = false) // kapazität
-    private int capacity;
+    @Column(name = "floor")
+    private Integer floor;        // etage
 
-    @Column(length = 255) // ausstattung
-    private String equipment;
+    @Column(name = "room_code")
+    private String roomCode;      // raum-nummer / bezeichnung
+
+    @Column(nullable = false)
+    private Integer capacity;     // kapazität
+
+    @Column
+    private String equipment;     // ausstattung (optional)
 
     public Room() {
     }
 
-    public Room(String name, String location, int capacity, String equipment) {
-        this.name = name;
-        this.location = location;
-        this.capacity = capacity;
-        this.equipment = equipment;
-    }
-
-    // getter und setter
     public Long getId() {
         return id;
     }
@@ -53,11 +51,27 @@ public class Room {
         this.location = location;
     }
 
-    public int getCapacity() {
+    public Integer getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Integer floor) {
+        this.floor = floor;
+    }
+
+    public String getRoomCode() {
+        return roomCode;
+    }
+
+    public void setRoomCode(String roomCode) {
+        this.roomCode = roomCode;
+    }
+
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 

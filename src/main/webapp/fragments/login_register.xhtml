@@ -1,0 +1,122 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                Raumbuchung – Login
+            </div>
+
+            <div class="auth-tabs">
+                <button id="tabLogin" type="button"
+                        class="auth-tab active"
+                        onclick="clickLoginTab()">
+                    Login
+                </button>
+                <button id="tabRegister" type="button"
+                        class="auth-tab"
+                        onclick="clickRegisterTab()">
+                    Registrieren
+                </button>
+            </div>
+
+            <div class="auth-body">
+
+                <!-- erfolgreiche register -->
+                <h:panelGroup id="regSuccessBox"
+                              rendered="#{registerBean.registrationSuccessful}">
+                    <div class="success-box">
+                        Erfolgreich registriert. Du kannst dich jetzt einloggen.
+                    </div>
+                    <span id="regSuccessFlag" style="display:none">ok</span>
+                </h:panelGroup>
+
+                <!-- fehler -->
+                <h:messages layout="list" styleClass="messages"/>
+
+                <!-- login -->
+                <div id="loginBox" style="display:block">
+                    <h:form>
+                        <div class="form-row">
+                            <span class="form-label">Username</span>
+                            <h:inputText value="#{loginBean.username}"
+                                         styleClass="form-input"
+                                         required="true"
+                                         requiredMessage="Bitte Username eingeben"/>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="form-label">Passwort</span>
+                            <h:inputSecret value="#{loginBean.password}"
+                                           styleClass="form-input"
+                                           required="true"
+                                           requiredMessage="Bitte Passwort eingeben"/>
+                        </div>
+
+                        <h:commandButton value="Einloggen"
+                                         action="#{loginBean.login}"
+                                         styleClass="form-button"/>
+                    </h:form>
+                </div>
+
+                <!-- register -->
+                <div id="registerBox" style="display:none">
+
+                    <!-- Installations-Hinweis nur im Installationsmodus -->
+                    <h:panelGroup rendered="#{registerBean.installationMode}">
+                        <div class="success-box warning-box">
+                            Installation: Registriere einen Admin-User.
+                            (Der erste Account erhält automatisch Adminrechte.)
+                        </div>
+                    </h:panelGroup>
+
+                    <h:form>
+                        <div class="form-row">
+                            <span class="form-label">Username</span>
+                            <h:inputText value="#{registerBean.username}"
+                                         styleClass="form-input"
+                                         required="true"
+                                         requiredMessage="Bitte Username eingeben"/>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="form-label">E-Mail</span>
+                            <h:inputText value="#{registerBean.email}"
+                                         styleClass="form-input"
+                                         required="true"
+                                         requiredMessage="Bitte eine gültige E-Mail eingeben"/>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="form-label">Passwort</span>
+                            <h:inputSecret value="#{registerBean.password}"
+                                           styleClass="form-input"
+                                           required="true"
+                                           requiredMessage="Bitte Passwort eingeben"/>
+                        </div>
+
+                        <div class="form-row">
+                            <span class="form-label">Passwort wiederholen</span>
+                            <h:inputSecret value="#{registerBean.passwordRepeat}"
+                                           styleClass="form-input"
+                                           required="true"
+                                           requiredMessage="Bitte Passwort wiederholen"/>
+                        </div>
+
+                        <h:commandButton value="Registrieren"
+                                         action="#{registerBean.register}"
+                                         styleClass="form-button"/>
+
+                        <div class="small-text">
+                            Dein Konto wird zunächst im Status „PENDING“ angelegt
+                            und muss vom Admin freigeschaltet werden.
+                        </div>
+                    </h:form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</ui:composition>

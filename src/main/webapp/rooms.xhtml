@@ -1,68 +1,271 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
+
 <h:head>
-    <title>räume verwalten</title>
+    <title>Räume verwalten</title>
+    <h:outputStylesheet library="css" name="style.css"/>
 </h:head>
-<h:body>
-    <h1>räume verwalten</h1>
 
-    <!-- zugriff nur für admin -->
-    <h:panelGroup rendered="#{!loginBean.admin}">
-        <p>kein zugriff (nur admin).</p>
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+<h:body styleClass="app-page">
 
-    <h:panelGroup rendered="#{loginBean.admin}">
-        <h2>neuen raum anlegen</h2>
+    <f:metadata>
+        <f:viewAction action="#{loginBean.redirectIfNotAllowed}"/>
+    </f:metadata>
 
-        <h:form>
-            <h:panelGrid columns="2">
-                <h:outputLabel for="name" value="name:"/>
-                <h:inputText id="name" value="#{roomAdminBean.newRoom.name}" required="true"/>
+    <div class="app-wrapper">
+        <ui:include src="fragments/topbar.xhtml"/>
 
-                <h:outputLabel for="location" value="standort:"/>
-                <h:inputText id="location" value="#{roomAdminBean.newRoom.location}" required="true"/>
+        <div class="app-main">
+            <div class="dashboard-layout">
 
-                <h:outputLabel for="capacity" value="kapazität:"/>
-                <h:inputText id="capacity" value="#{roomAdminBean.newRoom.capacity}" required="true"/>
+                <!-- box 1: standorte anlegen + übersicht -->
+                <div class="dash-section">
+                    <h2>Standorte verwalten</h2>
 
-                <h:outputLabel for="equipment" value="ausstattung:"/>
-                <h:inputText id="equipment" value="#{roomAdminBean.newRoom.equipment}"/>
-            </h:panelGrid>
+                    <h:panelGroup rendered="#{!loginBean.admin}">
+                        <p class="muted-text">
+                            Kein Zugriff – dieser Bereich ist nur für Admin-Benutzer.
+                        </p>
+                    </h:panelGroup>
 
-            <h:commandButton value="speichern" action="#{roomAdminBean.save}"/>
-        </h:form>
+                    <h:panelGroup rendered="#{loginBean.admin}">
 
-        <h2>alle räume</h2>
-        <h:form>
-            <h:dataTable value="#{roomAdminBean.rooms}" var="r" border="1">
-                <h:column>
-                    <f:facet name="header">name</f:facet>
-                    #{r.name}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">standort</f:facet>
-                    #{r.location}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">kapazität</f:facet>
-                    #{r.capacity}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">ausstattung</f:facet>
-                    #{r.equipment}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">aktion</f:facet>
-                    <h:commandButton value="löschen"
-                                     action="#{roomAdminBean.delete(r.id)}"/>
-                </h:column>
-            </h:dataTable>
-        </h:form>
+                        <h:form id="locationForm">
 
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+                            <!-- neuer standort -->
+                            <div class="form-row">
+                                <span class="form-label">Neuer Standort*:</span>
+                                <h:inputText id="locName"
+                                             value="#{roomAdminBean.newLocationName}"
+                                             styleClass="form-input"/>
+                                <h:message for="locName" styleClass="field-error"/>
+                            </div>
+
+                            <p class="form-legend">
+                                * Pflichtfelder
+                            </p>
+
+                            <h:commandButton value="Standort speichern"
+                                             action="#{roomAdminBean.saveLocation}"
+                                             styleClass="form-button">
+                                <f:ajax execute="@form"
+                                        render=":locationForm :roomForm"/>
+                            </h:commandButton>
+
+                            <!-- Überschrift als grauer Balken über volle Breite -->
+                            <h3 class="sub-section-header">Alle Standorte</h3>
+
+                            <h:panelGroup rendered="#{empty roomAdminBean.locations}">
+                                <p class="muted-text">
+                                    Es sind noch keine Standorte angelegt.
+                                </p>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not empty roomAdminBean.locations}">
+                                <table class="admin-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Aktion</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <ui:repeat value="#{roomAdminBean.locations}" var="loc">
+                                        <tr>
+                                            <td>#{loc.name}</td>
+                                            <td>
+                                                <h:commandButton value="Löschen"
+                                                                 action="#{roomAdminBean.deleteLocation(loc.id)}"
+                                                                 styleClass="table-button">
+                                                    <f:ajax execute="@this"
+                                                            render=":locationForm :roomForm"/>
+                                                </h:commandButton>
+                                            </td>
+                                        </tr>
+                                    </ui:repeat>
+                                    </tbody>
+                                </table>
+                            </h:panelGroup>
+
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+
+                <!-- box 2: räume anlegen + übersicht -->
+                <div class="dash-section">
+
+                    <h2>Räume verwalten</h2>
+
+                    <h:panelGroup rendered="#{!loginBean.admin}">
+                        <p class="muted-text">
+                            Kein Zugriff – dieser Bereich ist nur für Admin-Benutzer.
+                        </p>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{loginBean.admin}">
+                        <h:messages globalOnly="true"
+                                    layout="list"
+                                    styleClass="messages"/>
+
+                        <!-- ein gemeinsames form für anlegen + tabelle -->
+                        <h:form id="roomForm">
+                        
+                            <!-- name -->
+                            <div class="form-row">
+                                <span class="form-label">Name*:</span>
+                                <h:inputText id="name"
+                                             value="#{roomAdminBean.newRoom.name}"
+                                             styleClass="form-input"/>
+                                <h:message for="name" styleClass="field-error"/>
+                            </div>
+                        
+                            <!-- standort -->
+                            <div class="form-row">
+                                <span class="form-label">Standort*:</span>
+                        
+                                <!-- Wenn keine Standorte existieren: Hinweis -->
+                                <h:panelGroup rendered="#{empty roomAdminBean.locations}">
+                                    <p class="muted-text">
+                                        Es sind noch keine Standorte angelegt.
+                                        Bitte oben zuerst einen Standort erstellen.
+                                    </p>
+                                </h:panelGroup>
+                        
+                                <!-- Wenn Standorte existieren: Dropdown -->
+                                <h:panelGroup rendered="#{not empty roomAdminBean.locations}">
+                                    <h:selectOneMenu id="location"
+                                                     value="#{roomAdminBean.newRoom.location}"
+                                                     styleClass="form-input">
+                                        <f:selectItem itemLabel="-- Standort auswählen --" itemValue=""/>
+                                        <f:selectItems value="#{roomAdminBean.locations}"
+                                                       var="loc"
+                                                       itemValue="#{loc.name}"
+                                                       itemLabel="#{loc.name}"/>
+                                    </h:selectOneMenu>
+                                </h:panelGroup>
+
+                                <!-- Fehlermeldung immer drunter (auch wenn kein Dropdown) -->
+                                <h:message for="location" styleClass="field-error"/>
+                            </div>
+                        
+                            <!-- etage -->
+                            <div class="form-row">
+                                <span class="form-label">Etage*:</span>
+                                <h:inputText id="floor"
+                                             value="#{roomAdminBean.newRoom.floor}"
+                                             styleClass="form-input"
+                                             converterMessage="Bitte eine ganze Zahl für die Etage eingeben">
+                                    <f:validateLongRange minimum="-5" maximum="200"/>
+                                </h:inputText>
+                                <h:message for="floor" styleClass="field-error"/>
+                            </div>
+                        
+                            <!-- raum -->
+                            <div class="form-row">
+                                <span class="form-label">Raum*:</span>
+                                <h:inputText id="roomCode"
+                                             value="#{roomAdminBean.newRoom.roomCode}"
+                                             styleClass="form-input"/>
+                                <h:message for="roomCode" styleClass="field-error"/>
+                            </div>
+                        
+                            <!-- kapazität -->
+                            <div class="form-row">
+                                <span class="form-label">Kapazität*:</span>
+                                <h:inputText id="capacity"
+                                             value="#{roomAdminBean.newRoom.capacity}"
+                                             styleClass="form-input"
+                                             validatorMessage="Kapazität muss größer als 0 sein"
+                                             converterMessage="Bitte eine ganze Zahl eingeben">
+                                    <f:validateLongRange minimum="1"/>
+                                </h:inputText>
+                                <h:message for="capacity" styleClass="field-error"/>
+                            </div>
+                        
+                            <!-- ausstattung (optional) -->
+                            <div class="form-row">
+                                <span class="form-label">Ausstattung:</span>
+                                <h:inputText id="equipment"
+                                             value="#{roomAdminBean.newRoom.equipment}"
+                                             styleClass="form-input"/>
+                                <h:message for="equipment" styleClass="field-error"/>
+                            </div>
+                        
+                            <p class="form-legend">
+                                * Pflichtfelder
+                            </p>
+                        
+                            <h:commandButton value="Speichern"
+                                             action="#{roomAdminBean.save}"
+                                             styleClass="form-button">
+                                <f:ajax execute="@form" render="@form"/>
+                            </h:commandButton>
+
+                            <!-- Überschrift als grauer Balken -->
+                            <h3 class="sub-section-header">Alle Räume</h3>
+
+                            <h:panelGroup rendered="#{empty roomAdminBean.rooms}">
+                                <p class="muted-text">
+                                    Es sind noch keine Räume angelegt.
+                                </p>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not empty roomAdminBean.rooms}" id="roomsTable">
+                                <h:dataTable value="#{roomAdminBean.rooms}"
+                                             var="r"
+                                             styleClass="admin-table">
+                            
+                                    <h:column>
+                                        <f:facet name="header">Name</f:facet>
+                                        #{r.name}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Standort</f:facet>
+                                        #{r.location}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Etage</f:facet>
+                                        #{r.floor}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Raum</f:facet>
+                                        #{r.roomCode}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Kapazität</f:facet>
+                                        #{r.capacity}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Ausstattung</f:facet>
+                                        #{r.equipment}
+                                    </h:column>
+                            
+                                    <h:column>
+                                        <f:facet name="header">Aktion</f:facet>
+                                        <h:commandButton value="Löschen"
+                                                         action="#{roomAdminBean.delete(r.id)}"
+                                                         styleClass="table-button">
+                                            <f:ajax execute="@this" render="@form"/>
+                                        </h:commandButton>
+                                    </h:column>
+                                </h:dataTable>
+                            </h:panelGroup>
+
+                        </h:form>
+                    </h:panelGroup>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </h:body>
 </html>

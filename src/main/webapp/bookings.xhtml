@@ -1,76 +1,319 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
 <h:head>
-    <title>raum buchen</title>
+    <title>Raum buchen</title>
+    <h:outputStylesheet library="css" name="style.css"/>
 </h:head>
-<h:body>
-    <h1>raum buchen</h1>
 
-    <h:messages globalOnly="true"/>
+<h:body styleClass="app-page">
 
-    <!-- nur für eingeloggte user -->
-    <h:panelGroup rendered="#{!loginBean.loggedIn}">
-        <p>bitte zuerst einloggen.</p>
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+    <!-- Zugriffskontrolle -->
+    <f:metadata>
+        <f:viewAction action="#{loginBean.redirectIfNotAllowed}"/>
+    </f:metadata>
 
-    <h:panelGroup rendered="#{loginBean.loggedIn}">
-        <h2>neue buchung</h2>
+    <div class="app-wrapper">
+        <ui:include src="fragments/topbar.xhtml"/>
 
-        <h:form>
-            <h:panelGrid columns="2">
+        <div class="app-main">
+            <div class="dashboard-layout">
 
-                <h:outputLabel for="room" value="raum:"/>
-                <h:selectOneMenu id="room" value="#{bookingBean.roomId}" required="true">
-                    <f:selectItems value="#{bookingBean.rooms}"
-                                   var="r"
-                                   itemValue="#{r.id}"
-                                   itemLabel="#{r.name} (#{r.location})"/>
-                </h:selectOneMenu>
+                <div class="dash-section">
+                    <h2>Raum buchen</h2>
 
-                <h:outputLabel for="date" value="datum (yyyy-mm-dd):"/>
-                <h:inputText id="date" value="#{bookingBean.date}" required="true">
-                    <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
-                </h:inputText>
+                    <!-- nicht eingeloggt -->
+                    <h:panelGroup rendered="#{!loginBean.loggedIn}">
+                        <p class="muted-text">
+                            Bitte zuerst einloggen, um Räume zu buchen.
+                        </p>
+                        <h:link value="Zur Startseite"
+                                outcome="index"
+                                styleClass="app-nav-button"/>
+                    </h:panelGroup>
 
-                <h:outputLabel for="start" value="start (hh:mm):"/>
-                <h:inputText id="start" value="#{bookingBean.startTime}" required="true">
-                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
-                </h:inputText>
+                    <!-- eingeloggt -->
+                    <h:panelGroup rendered="#{loginBean.loggedIn}">
 
-                <h:outputLabel for="end" value="ende (hh:mm):"/>
-                <h:inputText id="end" value="#{bookingBean.endTime}" required="true">
-                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
-                </h:inputText>
+                        <!-- Konto noch nicht aktiv -->
+                        <h:panelGroup rendered="#{loginBean.pendingUser}">
+                            <p class="muted-text">
+                                Dein Konto ist noch nicht freigeschaltet. Buchungen sind bis dahin gesperrt.
+                            </p>
+                        </h:panelGroup>
 
-            </h:panelGrid>
+                        <!-- globale Messages oben -->
+                        <h:messages layout="list" styleClass="messages"/>
 
-            <h:commandButton value="buchen" action="#{bookingBean.book}"/>
-        </h:form>
+                        <!-- Buchungsformular nur für aktive User -->
+                        <h:panelGroup rendered="#{!loginBean.pendingUser}">
 
-        <h2>meine buchungen</h2>
-        <h:dataTable value="#{bookingBean.myBookings}" var="b" border="1">
-            <h:column>
-                <f:facet name="header">datum</f:facet>
-                #{b.date}
-            </h:column>
-            <h:column>
-                <f:facet name="header">start</f:facet>
-                #{b.startTime}
-            </h:column>
-            <h:column>
-                <f:facet name="header">ende</f:facet>
-                #{b.endTime}
-            </h:column>
-            <h:column>
-                <f:facet name="header">raum</f:facet>
-                #{b.room.name}
-            </h:column>
-        </h:dataTable>
+                            <h:form id="bookingForm">
 
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+                                <!-- Raum -->
+                                <div class="form-row">
+                                    <span class="form-label">Raum*:</span>
+
+                                    <!-- Wenn Räume vorhanden sind: Dropdown -->
+                                    <h:panelGroup rendered="#{not empty bookingBean.rooms}">
+                                        <h:selectOneMenu id="room"
+                                                         value="#{bookingBean.roomId}"
+                                                         styleClass="form-input">
+                                            <f:selectItems value="#{bookingBean.rooms}"
+                                                           var="r"
+                                                           itemValue="#{r.id}"
+                                                           itemLabel="#{r.name} | Standort: #{r.location} | Etage: #{r.floor} | Raumnummer: #{r.roomCode}"/>
+                                            <f:ajax listener="#{bookingBean.reloadDayBookings}"
+                                                    execute="@this"
+                                                    render=":bookingForm:dayBookingsPanel"/>
+                                        </h:selectOneMenu>
+                                    </h:panelGroup>
+
+                                    <!-- Wenn keine Räume vorhanden sind: Hinweistext (wie bei Standort) -->
+                                    <h:panelGroup rendered="#{empty bookingBean.rooms}">
+                                        <p class="muted-text">
+                                            Es sind noch keine Räume angelegt. Bitte oben zuerst einen Raum erstellen.
+                                        </p>
+                                    </h:panelGroup>
+
+                                    <!-- Validierungsfehlermeldung für Raum -->
+                                    <h:message for="room" styleClass="field-error"/>
+                                </div>
+
+                                <!-- Datum -->
+                                <div class="form-row">
+                                    <span class="form-label">Datum*:</span>
+                                    <h:inputText id="date"
+                                                 value="#{bookingBean.date}"
+                                                 styleClass="form-input"
+                                                 pt:type="date">
+                                        <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+                                        <f:ajax listener="#{bookingBean.reloadDayBookings}"
+                                                execute="@this"
+                                                render=":bookingForm:dayBookingsPanel"/>
+                                    </h:inputText>
+                                    <h:message for="date" styleClass="field-error"/>
+                                </div>
+
+                                <!-- Verfügbarkeit -->
+                                <h:panelGroup id="dayBookingsPanel">
+                                    <div class="timeline-card">
+                                        <div class="timeline-card-header">
+                                            Verfügbarkeit am ausgewählten Tag
+                                        </div>
+
+                                        <div class="timeline-card-body">
+                                            <div class="timeline-wrapper">
+                                                <div class="timeline-bar">
+
+                                                    <!-- Striche jede Stunde -->
+                                                    <ui:repeat value="#{bookingBean.hourTicks}" var="h">
+                                                        <div class="timeline-tick"
+                                                             style="left: #{bookingBean.percentForHour(h)};"></div>
+                                                    </ui:repeat>
+
+                                                    <!-- aktuelle Auswahl (blau) -->
+                                                    <div class="timeline-selection"
+                                                         style="left: #{bookingBean.selectionStartPercent}; width: #{bookingBean.selectionWidthPercent};"></div>
+
+                                                    <!-- bestehende Buchungen (rot) -->
+                                                    <ui:repeat value="#{bookingBean.dayBookings}" var="d">
+                                                        <div class="timeline-slot"
+                                                             title="#{d.startTime} - #{d.endTime}"
+                                                             style="left: #{bookingBean.startPercent(d)}; width: #{bookingBean.widthPercent(d)};"></div>
+                                                    </ui:repeat>
+                                                </div>
+
+                                                <!-- Labels alle 2 Stunden -->
+                                                <div class="timeline-labels">
+                                                    <ui:repeat value="#{bookingBean.labelHours}" var="h">
+                                                        <span class="timeline-label"
+                                                              style="left: #{bookingBean.percentForHour(h)};">
+                                                            #{h}h
+                                                        </span>
+                                                    </ui:repeat>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+
+                                <!-- Startzeit -->
+                                <div class="form-row">
+                                    <span class="form-label">Start (HH:mm)*:</span>
+                                    <h:inputText id="start"
+                                                 value="#{bookingBean.startTime}"
+                                                 styleClass="form-input"
+                                                 pt:type="time">
+                                        <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                        <f:ajax execute="@this"
+                                                render=":bookingForm:dayBookingsPanel"/>
+                                    </h:inputText>
+                                    <h:message for="start" styleClass="field-error"/>
+                                </div>
+
+                                <!-- Endzeit -->
+                                <div class="form-row">
+                                    <span class="form-label">Ende (HH:mm)*:</span>
+                                    <h:inputText id="end"
+                                                 value="#{bookingBean.endTime}"
+                                                 styleClass="form-input"
+                                                 pt:type="time">
+                                        <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                        <f:ajax execute="@this"
+                                                render=":bookingForm:dayBookingsPanel"/>
+                                    </h:inputText>
+                                    <h:message for="end" styleClass="field-error"/>
+                                </div>
+
+                                <p class="form-legend">
+                                    * Alle Felder sind Pflichtfelder (werden beim Speichern geprüft).
+                                </p>
+
+                                <h:commandButton value="Buchen"
+                                                 action="#{bookingBean.book}"
+                                                 styleClass="form-button"/>
+                            </h:form>
+                        </h:panelGroup>
+
+                        <!-- Meine Buchungen: Header + Switch + Tabellen -->
+                        <h:form id="bookingsForm">
+                            <h:panelGroup id="bookingsSection">
+
+                                <!-- Header-Zeile mit Switch -->
+                                <div class="sub-section-header-row">
+                                    <span class="sub-section-title">Meine Buchungen</span>
+
+                                    <div class="booking-toggle">
+                                        <h:commandButton value="Offen"
+                                                         action="#{bookingBean.showOpen}"
+                                                         styleClass="#{bookingBean.bookingFilter eq 'OPEN' ? 'booking-toggle-btn active-open' : 'booking-toggle-btn'}">
+                                            <f:ajax execute="@this"
+                                                    render=":bookingsForm:bookingsSection"/>
+                                        </h:commandButton>
+
+                                        <h:commandButton value="Abgelaufen"
+                                                         action="#{bookingBean.showPast}"
+                                                         styleClass="#{bookingBean.bookingFilter eq 'PAST' ? 'booking-toggle-btn active-past' : 'booking-toggle-btn'}">
+                                            <f:ajax execute="@this"
+                                                    render=":bookingsForm:bookingsSection"/>
+                                        </h:commandButton>
+                                    </div>
+                                </div>
+
+                                <!-- OFFENE BUCHUNGEN -->
+                                <h:panelGroup id="openBookingsPanel"
+                                              rendered="#{bookingBean.bookingFilter eq 'OPEN'}">
+
+                                    <h:panelGroup rendered="#{empty bookingBean.myOpenBookings}">
+                                        <p class="muted-text">
+                                            Du hast aktuell keine offenen Buchungen.
+                                        </p>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty bookingBean.myOpenBookings}">
+                                        <table class="admin-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Datum</th>
+                                                <th>Start</th>
+                                                <th>Ende</th>
+                                                <th>Raum</th>
+                                                <th>Standort</th>
+                                                <th>Etage</th>
+                                                <th>Raumnummer</th>
+                                                <th>Aktion</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <ui:repeat value="#{bookingBean.myOpenBookings}" var="b">
+                                                <tr>
+                                                    <td>#{b.date}</td>
+                                                    <td>#{b.startTime}</td>
+                                                    <td>#{b.endTime}</td>
+                                                    <td>#{b.room.name}</td>
+                                                    <td>#{b.room.location}</td>
+                                                    <td>#{b.room.floor}</td>
+                                                    <td>#{b.room.roomCode}</td>
+                                                    <td>
+                                                        <h:commandButton value="Löschen"
+                                                                         action="#{bookingBean.delete(b.id)}"
+                                                                         styleClass="table-button">
+                                                            <f:ajax execute="@this"
+                                                                    render=":bookingsForm:bookingsSection :bookingForm:dayBookingsPanel"/>
+                                                        </h:commandButton>
+                                                    </td>
+                                                </tr>
+                                            </ui:repeat>
+                                            </tbody>
+                                        </table>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+
+                                <!-- ABGELAUFENE BUCHUNGEN -->
+                                <h:panelGroup id="pastBookingsPanel"
+                                              rendered="#{bookingBean.bookingFilter eq 'PAST'}">
+
+                                    <h:panelGroup rendered="#{empty bookingBean.myPastBookings}">
+                                        <p class="muted-text">
+                                            Es liegen keine abgelaufenen Buchungen vor.
+                                        </p>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{not empty bookingBean.myPastBookings}">
+                                        <table class="admin-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Datum</th>
+                                                <th>Start</th>
+                                                <th>Ende</th>
+                                                <th>Raum</th>
+                                                <th>Standort</th>
+                                                <th>Etage</th>
+                                                <th>Raumnummer</th>
+                                                <th>Aktion</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <ui:repeat value="#{bookingBean.myPastBookings}" var="b">
+                                                <tr>
+                                                    <td>#{b.date}</td>
+                                                    <td>#{b.startTime}</td>
+                                                    <td>#{b.endTime}</td>
+                                                    <td>#{b.room.name}</td>
+                                                    <td>#{b.room.location}</td>
+                                                    <td>#{b.room.floor}</td>
+                                                    <td>#{b.room.roomCode}</td>
+                                                    <td>
+                                                        <h:commandButton value="Löschen"
+                                                                         action="#{bookingBean.delete(b.id)}"
+                                                                         styleClass="table-button">
+                                                            <f:ajax execute="@this"
+                                                                    render=":bookingsForm:bookingsSection :bookingForm:dayBookingsPanel"/>
+                                                        </h:commandButton>
+                                                    </td>
+                                                </tr>
+                                            </ui:repeat>
+                                            </tbody>
+                                        </table>
+                                    </h:panelGroup>
+
+                                </h:panelGroup>
+
+                            </h:panelGroup>
+                        </h:form>
+
+                    </h:panelGroup>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </h:body>
 </html>

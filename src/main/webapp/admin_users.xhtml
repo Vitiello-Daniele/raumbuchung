@@ -1,43 +1,156 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
 <h:head>
-    <title>user freischalten</title>
+    <title>Userverwaltung</title>
+    <h:outputStylesheet library="css" name="style.css"/>
 </h:head>
-<h:body>
-    <h1>user freischalten</h1>
 
-    <!-- schutz: nur admin -->
-    <h:panelGroup rendered="#{!loginBean.admin}">
-        <p>kein zugriff (nur admin).</p>
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+<h:body styleClass="app-page">
 
-    <h:panelGroup rendered="#{loginBean.admin}">
-        <h:form>
-            <h:dataTable value="#{userAdminBean.pendingUsers}" var="u" border="1">
-                <h:column>
-                    <f:facet name="header">username</f:facet>
-                    #{u.username}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">email</f:facet>
-                    #{u.email}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">status</f:facet>
-                    #{u.status}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">aktion</f:facet>
-                    <h:commandButton value="freischalten"
-                                     action="#{userAdminBean.activate(u.id)}"/>
-                </h:column>
-            </h:dataTable>
-        </h:form>
+    <!-- Zugriffskontrolle -->
+    <f:metadata>
+        <f:viewAction action="#{loginBean.redirectIfNotAllowed}"/>
+    </f:metadata>
 
-        <h:link value="zur startseite" outcome="index"/>
-    </h:panelGroup>
+    <div class="app-wrapper">
+        <ui:include src="fragments/topbar.xhtml"/>
+
+        <div class="app-main">
+            <div class="dashboard-layout">
+
+                <div class="dash-section">
+                    <h2>Userverwaltung</h2>
+
+                    <!-- kein zugriff (nicht admin / nicht eingeloggt) -->
+                    <h:panelGroup rendered="#{!loginBean.admin}">
+                        <p class="muted-text">
+                            Kein Zugriff – dieser Bereich ist nur für Admin-Benutzer.
+                        </p>
+                        <h:link value="Zur Startseite"
+                                outcome="index"
+                                styleClass="app-nav-button"/>
+                    </h:panelGroup>
+
+                    <!-- admin-bereich -->
+                    <h:panelGroup rendered="#{loginBean.admin}">
+                        <!-- globale meldungen -->
+                        <h:messages id="globalMessages"
+                                    layout="list"
+                                    styleClass="messages"/>
+
+                        <!-- Filter + Tabelle in einem Form -->
+                        <h:form id="userForm">
+
+                            <!-- Filter: Suche -->
+                            <div class="form-row">
+                                <span class="form-label">Suche:</span>
+                                <h:inputText value="#{userAdminBean.searchTerm}"
+                                             styleClass="form-input"
+                                             pt:placeholder="Username oder E-Mail"/>
+                            </div>
+
+                            <!-- Filter: Status -->
+                            <div class="form-row">
+                                <span class="form-label">Status:</span>
+                                <h:selectOneMenu value="#{userAdminBean.statusFilter}"
+                                                 styleClass="form-input">
+                                    <f:selectItem itemLabel="Alle" itemValue="ALL"/>
+                                    <f:selectItem itemLabel="Nur PENDING" itemValue="PENDING"/>
+                                    <f:selectItem itemLabel="Nur ACTIVE" itemValue="ACTIVE"/>
+                                </h:selectOneMenu>
+                            </div>
+
+                            <!-- Filter: Rolle -->
+                            <div class="form-row">
+                                <span class="form-label">Rolle:</span>
+                                <h:selectOneMenu value="#{userAdminBean.roleFilter}"
+                                                 styleClass="form-input">
+                                    <f:selectItem itemLabel="Alle" itemValue="ALL"/>
+                                    <f:selectItem itemLabel="Nur USER" itemValue="USER"/>
+                                    <f:selectItem itemLabel="Nur ADMIN" itemValue="ADMIN"/>
+                                </h:selectOneMenu>
+                            </div>
+
+                            <h:commandButton value="Filter anwenden"
+                                             action="#{userAdminBean.applyFilter}"
+                                             styleClass="form-button">
+                                <f:ajax execute="@form"
+                                        render="@form :globalMessages"/>
+                            </h:commandButton>
+
+                            <!-- keine user -->
+                            <h:panelGroup rendered="#{empty userAdminBean.users}">
+                                <p class="muted-text" style="margin-top:1rem;">
+                                    Keine Benutzer gefunden (Filter anpassen?).
+                                </p>
+                            </h:panelGroup>
+
+                            <!-- tabelle mit usern -->
+                            <h:panelGroup rendered="#{not empty userAdminBean.users}">
+                                <table class="admin-table" style="margin-top:1rem;">
+                                    <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>E-Mail</th>
+                                        <th>Status</th>
+                                        <th>Rolle</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <ui:repeat value="#{userAdminBean.users}" var="u">
+                                        <tr>
+                                            <td>#{u.username}</td>
+                                            <td>#{u.email}</td>
+                                            <td>#{u.status}</td>
+                                            <td>#{u.role}</td>
+                                            <td>
+                                                <!-- Status-Aktion: Freischalten -->
+                                                <h:commandButton value="Freischalten"
+                                                                 rendered="#{u.status eq 'PENDING'}"
+                                                                 action="#{userAdminBean.activate(u.id)}"
+                                                                 styleClass="table-button">
+                                                    <f:ajax execute="@form"
+                                                            render="@form :globalMessages"/>
+                                                </h:commandButton>
+
+                                                <!-- Rollen-Aktionen -->
+                                                <h:commandButton value="Zu Admin machen"
+                                                                 rendered="#{u.role eq 'USER'}"
+                                                                 action="#{userAdminBean.makeAdmin(u.id)}"
+                                                                 styleClass="table-button">
+                                                    <f:ajax execute="@form"
+                                                            render="@form :globalMessages"/>
+                                                </h:commandButton>
+
+                                                <h:commandButton value="Adminrechte entfernen"
+                                                                 rendered="#{u.role eq 'ADMIN' and u.id ne loginBean.currentUser.id}"
+                                                                 action="#{userAdminBean.makeUser(u.id)}"
+                                                                 styleClass="table-button">
+                                                    <f:ajax execute="@form"
+                                                            render="@form :globalMessages"/>
+                                                </h:commandButton>
+                                            </td>
+                                        </tr>
+                                    </ui:repeat>
+                                    </tbody>
+                                </table>
+                            </h:panelGroup>
+
+                        </h:form>
+
+                    </h:panelGroup>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </h:body>
 </html>

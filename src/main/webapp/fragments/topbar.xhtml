@@ -1,0 +1,58 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="app-topbar">
+        <div class="app-topbar-left">
+
+            <!-- kleiner home-button links -->
+            <h:link outcome="index" styleClass="app-home-button">
+                <span class="app-home-icon">&#127968;</span>
+            </h:link>
+
+            <!-- titel nur als text -->
+            <span class="app-title">Raumbuchung</span>
+
+            <h:panelGroup rendered="#{loginBean.pendingUser}">
+                <span class="badge-pending">
+                    Konto noch nicht freigeschaltet
+                </span>
+            </h:panelGroup>
+        </div>
+
+
+		<div class="app-topbar-right">
+		
+		    <h:panelGroup rendered="#{loginBean.activeUser}">
+			    <h:link value="Räume buchen"
+			            outcome="bookings"
+			            styleClass="app-nav-button"/>
+		    </h:panelGroup>
+		
+		    <h:panelGroup rendered="#{loginBean.admin}">
+		        <span class="app-nav-separator">|</span>
+		
+		        <h:link value="User freischalten"
+		                outcome="admin_users"
+		                styleClass="app-nav-button"/>
+		
+		        <h:link value="Räume verwalten"
+		                outcome="rooms"
+		                styleClass="app-nav-button"/>
+		    </h:panelGroup>
+		
+		    <!-- user-block: willkommen + logout -->
+		    <h:form styleClass="app-user-box">
+			    <span class="app-hello">
+			        Willkommen #{loginBean.currentUser.username}
+			    </span>
+			    <h:commandButton value="Logout"
+			                     action="#{loginBean.logout}"
+			                     styleClass="app-logout-button"/>
+			</h:form>
+		</div>
+        
+
+    </div>
+
+</ui:composition>

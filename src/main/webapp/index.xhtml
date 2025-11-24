@@ -1,34 +1,217 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 <h:head>
-    <title>raumbuchung start</title>
+    <title>Raumbuchung – Login</title>
+
+    <h:outputStylesheet library="css" name="style.css"/>
+
+    <script type="text/javascript">
+        function clearMessages() {
+            // JSF-Fehlermeldungen leeren
+            var msg = document.querySelector('.messages');
+            if (msg) {
+                msg.innerHTML = '';
+                msg.style.display = 'none';
+            }
+
+            // Erfolgsbox nach Registrierung ausblenden
+            var regBox = document.getElementById('regSuccessBox');
+            if (regBox) {
+                regBox.style.display = 'none';
+            }
+        }
+
+        function activateLogin(save) {
+            var loginBox = document.getElementById('loginBox');
+            var registerBox = document.getElementById('registerBox');
+            var tabLogin = document.getElementById('tabLogin');
+            var tabRegister = document.getElementById('tabRegister');
+
+            if (!loginBox || !registerBox || !tabLogin || !tabRegister) {
+                return;
+            }
+
+            loginBox.style.display = 'block';
+            registerBox.style.display = 'none';
+            tabLogin.classList.add('active');
+            tabRegister.classList.remove('active');
+
+            if (save) {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('activeTab', 'login');
+                }
+            }
+        }
+
+        function activateRegister(save) {
+            var loginBox = document.getElementById('loginBox');
+            var registerBox = document.getElementById('registerBox');
+            var tabLogin = document.getElementById('tabLogin');
+            var tabRegister = document.getElementById('tabRegister');
+
+            if (!loginBox || !registerBox || !tabLogin || !tabRegister) {
+                return;
+            }
+
+            loginBox.style.display = 'none';
+            registerBox.style.display = 'block';
+            tabLogin.classList.remove('active');
+            tabRegister.classList.add('active');
+
+            if (save) {
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('activeTab', 'register');
+                }
+            }
+        }
+
+        function clickLoginTab() {
+            clearMessages();
+            activateLogin(true);
+        }
+
+        function clickRegisterTab() {
+            clearMessages();
+            activateRegister(true);
+        }
+
+        window.onload = function () {
+            var loginBox = document.getElementById('loginBox');
+            var registerBox = document.getElementById('registerBox');
+            if (!loginBox || !registerBox) {
+                return;
+            }
+
+            var msg = document.querySelector('.messages');
+            if (msg) {
+                if (msg.children.length > 0) {
+                    msg.style.display = 'block';
+                } else {
+                    msg.style.display = 'none';
+                }
+            }
+
+            var regFlag = document.getElementById('regSuccessFlag');
+            if (regFlag) {
+                activateLogin(false);
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('activeTab', 'login');
+                }
+                return;
+            }
+
+            var active = null;
+            if (window.sessionStorage) {
+                active = sessionStorage.getItem('activeTab');
+            }
+
+            if (active === 'register') {
+                activateRegister(false);
+            } else {
+                activateLogin(false);
+            }
+        };
+    </script>
 </h:head>
-<h:body>
-    <h1>raumbuchung – startseite</h1>
 
-    <!-- bereich wenn eingeloggt -->
-    <h:panelGroup rendered="#{loginBean.loggedIn}">
-	    <p>eingeloggt als #{loginBean.currentUser.username}</p>
-	    
-    	<h:link value="räume buchen" outcome="bookings"/><br/>
+<h:body styleClass="#{loginBean.loggedIn ? 'app-page' : 'auth-page'}">
 
-	    <h:panelGroup rendered="#{loginBean.admin}">
-		    <h:link value="admin: user freischalten" outcome="admin_users"/><br/>
-		    <h:link value="admin: räume verwalten" outcome="rooms"/>
-		</h:panelGroup>
-		
-	    <h:form>
-	        <h:commandButton value="logout" action="#{loginBean.logout}"/>
-	    </h:form>
-	
-	</h:panelGroup>
-	    
-
-    <!-- bereich wenn NICHT eingeloggt -->
+    <!-- nicht eingeloggt -->
     <h:panelGroup rendered="#{!loginBean.loggedIn}">
-        <h:link value="login" outcome="login"/><br/>
-        <h:link value="registrieren" outcome="register"/>
+        <ui:include src="fragments/login_register.xhtml"/>
     </h:panelGroup>
+
+    <!-- eingeloggt -->
+    <h:panelGroup rendered="#{loginBean.loggedIn}">
+        <div class="app-wrapper">
+            <ui:include src="fragments/topbar.xhtml"/>
+
+            <div class="app-main">
+                <div class="dashboard-layout">
+
+                    <!-- linke box -->
+                    <div class="dash-section">
+                        <h2>Startseite</h2>
+                        <p>Willkommen im Raumbuchungssystem.</p>
+
+                        <ul class="dash-list">
+                            <li>Über „Räume buchen“ kannst du neue Buchungen anlegen.</li>
+                            <li>Unter „Räume verwalten“ pflegst du als Admin die Räume.</li>
+                            <li>Im Menü „User freischalten“ aktivierst du neue Benutzerkonten.</li>
+                        </ul>
+
+                        <p class="muted-text">
+                            Tipp: nutze die Leiste oben, um schnell zwischen den Bereichen zu wechseln.
+                        </p>
+                    </div>
+
+                    <!-- rechte box: nächste buchungen -->
+                    <div class="dash-section">
+                        <h:panelGroup id="upcomingSection">
+
+                            <div class="dash-section-header">
+                                <h3>Meine nächsten Buchungen</h3>
+                                <h:panelGroup rendered="#{not empty bookingBean.upcomingBookings}">
+                                    <span class="badge-counter">
+                                        #{bookingBean.upcomingBookings.size()} offen
+                                    </span>
+                                </h:panelGroup>
+                            </div>
+
+                            <h:panelGroup rendered="#{empty bookingBean.upcomingBookings}">
+                                <p class="muted-text">Du hast aktuell keine zukünftigen Buchungen.</p>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not empty bookingBean.upcomingBookings}">
+                                <h:form id="upcomingForm">
+                                    <table class="admin-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Start</th>
+                                            <th>Ende</th>
+                                            <th>Raum</th>
+                                            <th>Standort</th>
+                                            <th>Etage</th>
+                                            <th>Raumnummer</th>
+                                            <th>Aktion</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <ui:repeat value="#{bookingBean.upcomingBookings}" var="b">
+                                            <tr>
+                                                <td>#{b.date}</td>
+                                                <td>#{b.startTime}</td>
+                                                <td>#{b.endTime}</td>
+                                                <td>#{b.room.name}</td>
+                                                <td>#{b.room.location}</td>
+                                                <td>#{b.room.floor}</td>
+                                                <td>#{b.room.roomCode}</td>
+                                                <td>
+                                                    <h:commandButton value="Löschen"
+                                                                     action="#{bookingBean.delete(b.id)}"
+                                                                     styleClass="table-button">
+                                                        <f:ajax execute="@this"
+                                                                render=":upcomingSection"/>
+                                                    </h:commandButton>
+                                                </td>
+                                            </tr>
+                                        </ui:repeat>
+                                        </tbody>
+                                    </table>
+                                </h:form>
+                            </h:panelGroup>
+
+                        </h:panelGroup>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+
 </h:body>
 </html>
