@@ -13,8 +13,13 @@
 
         <properties>
             <!-- für entwicklung: tabellen neu erstellen -->
+            <!--
             <property name="jakarta.persistence.schema-generation.database.action"
                       value="drop-and-create"/>
+            -->
+            <!-- für live umgebung -->
+            <property name="jakarta.persistence.schema-generation.database.action"
+                      value="none"/>
         </properties>
     </persistence-unit>
 
